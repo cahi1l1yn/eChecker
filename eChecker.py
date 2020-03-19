@@ -1,10 +1,13 @@
 #!/usr/bin/python
 #-*- coding:utf-8 -*-
+
 '''
---eteams_auto_check-
-Created on 2020-3-18
+----------------------------------------------------
+eChecker
+Make auto checkin and checkout for eteams
 Author: cahi1l1yn
 Version:0.9
+--------------------------------------------------
 '''
 
 import getopt
@@ -16,11 +19,11 @@ import json
 
 help='''
 eChecker
-Usage: eChecker.py -i [checkin_time] -o [checkout_time] -c [Cookie]
+Usage: eChecker.py -i [checkin_time](%hh:%mm) -o [checkout_time](%hh:%mm) -c [Cookie]('cookie_string')
 
 -h Print this help
--i Set checkin time(min)，default hour is 8,if set to 30 then checkin time will be 8:30
--o Set checkout time(min)，default hour is 17,if set to 30 then checkin time will be 17:30
+-i Set checkin time(%hh:%mm)
+-o Set checkout time(%hh:%mm)
 -c Set your cookie
 '''
 banner='''
@@ -37,14 +40,7 @@ global outime
 kurl = 'https://www.eteams.cn/portal/tasks.json?name=%E4%BB%BB%E5%8A%A1&isShow=1&id=2&type=mine&userId=4975080324437330342&_=1584491917775'
 curl = 'https://www.eteams.cn/attendapp/timecard/check.json'
 agent = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.9 Safari/537.36'
-usage = 'Usage: eChecker.py -i [checkin_time] -o [checkout_time] -c [Cookie]\n'
-
-
-
-'''
-------------------------------------
-'''
-
+usage = "Usage: eChecker.py -i [checkin_time](%hh:%mm) -o [checkout_time](%hh:%mm) -c [Cookie]('cookie_string')\n"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -55,8 +51,8 @@ logging.basicConfig(
 
 def get_time():
     global h,m
-    h = time.localtime()[3]
-    m = time.localtime()[4]
+    h = time.strftime('%H',time.localtime())
+    m = time.strftime('%M',time.localtime())
 
 def keep_seesion():
     req = urllib2.Request(kurl)
@@ -64,9 +60,7 @@ def keep_seesion():
     req.add_header('X-Requested-With','XMLHttpRequest')
     try:
         res = urllib2.urlopen(req,timeout=5).read()
-        print res
         msg = res.find('actionMsg')
-        print msg
         if msg > -1:
             logging.warning(res)
     except:
@@ -74,12 +68,14 @@ def keep_seesion():
         keep_live()
 
 def check_in():
+    print 'Time for checkin'
     req = urllib2.Request(curl)
-    req.add_header("Cookie',cookie")
+    req.add_header("Cookie",cookie)
     req.add_header("Content-Type","application/json")
-    data = {"type":"CHECKIN"}
+    data = json.dumps({"type":"CHECKIN"})
     try:
         res = urllib2.urlopen(req,data=data,timeout=5).read()
+        print res
         smsg = res.find('签到成功')
         fmsg = res.find('签到失败')
         if smsg > -1:
@@ -91,6 +87,7 @@ def check_in():
         check_in()
 
 def check_out():
+    print 'Time for checkout'
     req = urllib2.Request(curl)
     req.add_header("Cookie",cookie)
     req.add_header("Content-Type","application/json")
@@ -101,7 +98,7 @@ def check_out():
         smsg = res.find('签退成功')
         fmsg = res.find('签退失败')
         if smsg > -1:
-            logging.info('签退成功'smsg)
+            logging.info('签退成功')
         elif fmsg > -1:
             logging.warning('签退失败,原因:'+res)
     except:
@@ -111,15 +108,24 @@ def check_out():
 def check_time():
     while True:
         get_time()
-        print h,m
+        try:
+            ih = intime.split(':')[0]
+            im = intime.split(':')[1]
+            oh = outime.split(':')[0]
+            om = outime.split(':')[1]
+        except Exception as e:
+            print 'Error format of time'
+            break
         if h == 0 and m == 30:
             keep_seesion()
-        elif h == 8 and m == intime:
+            time.sleep(60)
+        elif h == ih and m == im:
             check_in()
-        elif h == 17 and m == outime:
+            time.sleep(60)
+        elif h == oh and m == om:
             check_out()
-        time.sleep(60)
-
+            time.sleep(60)
+    time.sleep(60)
 
 def main(argv):
     print banner
@@ -136,13 +142,14 @@ def main(argv):
         if opt == '-h':
             print help
             sys.exit()
-        elif opt in ('-i'):
+        elif opt =='-i':
             intime = arg
-        elif opt in ('-o'):
+        elif opt == '-o':
             outime = arg
-        elif opt in ('-c'):
+        elif opt == '-c':
             cookie = arg
-
+    print 'Running...\nCheckin at '+intime+'\nCheckout at '+outime
+    print 'Your cookie is:\n'+cookie
     check_time()
 
 if __name__ == '__main__':
