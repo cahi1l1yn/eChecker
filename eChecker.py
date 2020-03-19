@@ -18,7 +18,6 @@ import logging
 import json
 
 help='''
-eChecker
 Usage: eChecker.py -i [checkin_time](%hh:%mm) -o [checkout_time](%hh:%mm) -c [Cookie]('cookie_string')
 
 -h Print this help
