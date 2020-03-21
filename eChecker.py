@@ -25,8 +25,8 @@ Usage: eChecker.py -i checkin_time(%hh:%mm) -o checkout_time(%hh:%mm) -u usernam
 -h Print this help
 -i Set checkin time(%hh:%mm)
 -o Set checkout time(%hh:%mm)
--u Your username
--p Your password
+-u Your username of eteams
+-p Your password of etaams
 '''
 
 banner='''
