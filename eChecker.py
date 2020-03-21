@@ -96,13 +96,12 @@ def check_in():
     data = json.dumps({"type":"CHECKIN"})
     try:
         res = urllib2.urlopen(req,data=data,timeout=5).read()
-        print res
         smsg = res.find('签到成功')
         fmsg = res.find('签到失败')
         if smsg > -1:
-            logging.info('签到成功')
+            print '[INFO]'+time.strftime('%H%M',time.localtime())+'Checkout succeed'
         elif fmsg > -1:
-            logging.warning('签到失败,原因:'+res)
+            print '[WARNING]'+time.strftime('%H%M',time.localtime())+'Checkout fail:'+res
     except:
         time.sleep(10)
         check_in()
@@ -115,13 +114,12 @@ def check_out():
     data = json.dumps({"type":"CHECKOUT"})
     try:
         res = urllib2.urlopen(req,data,timeout=5).read()
-        print res
         smsg = res.find('签退成功')
         fmsg = res.find('签退失败')
         if smsg > -1:
-            logging.info('签退成功')
+            print '[INFO]'+time.strftime('%H%M',time.localtime())+'Checkout succeed'
         elif fmsg > -1:
-            logging.warning('签退失败,原因:'+res)
+            print '[WARNING]'+time.strftime('%H%M',time.localtime())+'Checkout fail:'+res
     except:
         time.sleep(10)
         check_out()
