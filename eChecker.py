@@ -42,7 +42,7 @@ kurl = 'https://www.eteams.cn/portal/tasks.json?name=%E4%BB%BB%E5%8A%A1&isShow=1
 curl = 'https://www.eteams.cn/attendapp/timecard/check.json'
 lurl = 'https://passport.eteams.cn/login'
 agent = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.9 Safari/537.36'
-usage = "Usage: eChecker.py -i [checkin_time](%hh:%mm) -o [checkout_time](%hh:%mm) -u username -p password\n"
+usage = "Usage: eChecker.py -i checkin_time(%hh:%mm) -o checkout_time(%hh:%mm) -u username -p password\n"
 
 
 def get_time():
@@ -54,7 +54,7 @@ def get_time():
 def get_cookie(user,passwd):
     global cookie
     preq = urllib2.Request(lurl)
-    pres = urllib2.urlopen(req1)
+    pres = urllib2.urlopen(preq)
     html = pres.read()
     token = re.search(r'LT\S+cn',html).group()
     pcookie = re.search(r'JSESSIONID=\S+',str(pres.info().headers)).group()
@@ -177,12 +177,12 @@ def main(argv):
     try:
         print 'Running...\nCheckin at '+intime+'\nCheckout at '+outime
     except NameError:
-        print '[ERROR]Please check your argument and usage'
+        print '[ERROR]Please check your time'
         sys.exit(2)
     try:
         get_cookie(user,passwd)
     except NameError:
-        print '[ERROR]Please check your argument and usage'
+        print '[ERROR]Please check your username and password'
         sys.exit(2)
     check_time()
 
