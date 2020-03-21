@@ -34,7 +34,7 @@ banner='''
 eChecker
 Make auto checkin and checkout for eteams
 Author: cahi1l1yn
-Version:0.9
+Version:1.0
 ----------------------------------------------------
 '''
 
@@ -69,11 +69,10 @@ def get_cookie(user,passwd):
         print '[ERROR]Please retry later'
     try:
         cookie = re.search(r'ETEAMSID=\w+',str(cj)).group()+';'+re.search(r'JSESSIONID=\w+',str(cj)).group()+';'+re.search(r'WEBID=\w+',str(cj)).group()
-        print '[INFO]Login succeed, your cookie is: '+cookie
+        print '[INFO]Login succeed, your cookie is:'+cookie
     except AttributeError:
-        print '[ERROR]None cookie recived, please check your username and passwod'
+        print '[ERROR]None cookie recived, wrong username or password'
         sys.exit(2)
-
 
 def keep_seesion():
     req = urllib2.Request(kurl)
@@ -83,7 +82,9 @@ def keep_seesion():
         res = urllib2.urlopen(req,timeout=5).read()
         msg = res.find('actionMsg')
         if msg > -1:
-            print res
+            print '[WARNING]'+res
+        else:
+            print '[INFO]Seesion keep living'
     except:
         time.sleep(10)
         keep_live()
@@ -99,9 +100,9 @@ def check_in():
         smsg = res.find('签到成功')
         fmsg = res.find('签到失败')
         if smsg > -1:
-            print '[INFO]'+time.strftime('%H%M',time.localtime())+'Checkout succeed'
+            print '[INFO]'+time.strftime('%Y-%m-%d_%H:%M',time.localtime())+' Checkout succeed'
         elif fmsg > -1:
-            print '[WARNING]'+time.strftime('%H%M',time.localtime())+'Checkout fail:'+res
+            print '[WARNING]'+time.strftime('%Y-%m-%d_%H:%M',time.localtime())+' Checkout fail:'+res
     except:
         time.sleep(10)
         check_in()
@@ -117,9 +118,9 @@ def check_out():
         smsg = res.find('签退成功')
         fmsg = res.find('签退失败')
         if smsg > -1:
-            print '[INFO]'+time.strftime('%H%M',time.localtime())+'Checkout succeed'
+            print '[INFO]'+time.strftime('%Y-%m-%d_%H:%M',time.localtime())+' Checkout succeed'
         elif fmsg > -1:
-            print '[WARNING]'+time.strftime('%H%M',time.localtime())+'Checkout fail:'+res
+            print '[WARNING]'+time.strftime('%Y-%m-%d_%H:%M',time.localtime())+' Checkout fail:'+res
     except:
         time.sleep(10)
         check_out()
@@ -135,7 +136,7 @@ def check_time():
                 om = outime.split(':')[1]
             except Exception as e:
                 print '[ERROR]Wrong format of time'
-                break
+                sys.exit(2)
             if h == 0 and m == 30:
                 keep_seesion()
                 time.sleep(60)
@@ -148,8 +149,7 @@ def check_time():
         else:
             time.sleep(60)
             check_time()
-        time.sleep(60)
-
+        
 def main(argv):
     print banner
     print usage
@@ -165,7 +165,7 @@ def main(argv):
         global passwd
         if opt == '-h':
             print help
-            sys.exit()
+            sys.exit(0)
         elif opt =='-i':
             intime = arg
         elif opt == '-o':
