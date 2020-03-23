@@ -181,7 +181,7 @@ def main(argv):
         elif opt == '-p':
             passwd = arg
     try:
-        print 'Running...\nCheckin at '+intime+' +\nCheckout at '+outime
+        print 'Running...\nCheckin at '+intime+' +(0-5 min)\nCheckout at '+outime+' +(0-5 min)'
     except NameError:
         print '[ERROR]Please check your time'
         sys.exit(2)
