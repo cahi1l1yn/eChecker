@@ -67,7 +67,7 @@ def get_cookie(user,passwd):
     try:
         res = opener.open(lurl,data=data,timeout=10)
     except urllib2.URLError:
-        print '[ERROR]Please retry later'
+        print '[ERROR]Urlllib error, retry later'
     try:
         cookie = re.search(r'ETEAMSID=\w+',str(cj)).group()+';'+re.search(r'JSESSIONID=\w+',str(cj)).group()+';'+re.search(r'WEBID=\w+',str(cj)).group()
         print '[INFO]Login succeed, your cookie is:'+cookie
@@ -140,13 +140,13 @@ def check_time():
         except Exception as e:
             print '[ERROR]Wrong format of time'
             sys.exit(2)
-        if h == 4 and m == 30:
+        if h.strip('0') == 4 and m == 30:
             keep_session()
             time.sleep(60)
-        elif h == ih and m == im and d not in ('Sat','Sun'):
+        elif h.strip('0') == ih and m == im and d not in ('Sat','Sun'):
             check_in()
             time.sleep(60)
-        elif h == oh and m == om and d not in ('Sat','Sun'):
+        elif h.strip('0') == oh and m == om and d not in ('Sat','Sun'):
             check_out()
             time.sleep(60)
         else:
