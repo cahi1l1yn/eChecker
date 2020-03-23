@@ -6,7 +6,7 @@
 eChecker
 Make auto checkin and checkout for eteams
 Author: cahi1l1yn
-Version:1.0
+Version:1.1
 --------------------------------------------------
 '''
 
@@ -18,14 +18,15 @@ import logging
 import json
 import re
 import cookielib
+import random
 
 
 help='''
 Usage: eChecker.py -i checkin_time(%hh:%mm) -o checkout_time(%hh:%mm) -u username -p password
 
 -h Print this help
--i Set checkin time(%hh:%mm)
--o Set checkout time(%hh:%mm)
+-i Set checkin time(%hh:%mm),random float 0 to 5 min
+-o Set checkout time(%hh:%mm),random float 0 to 5 min
 -u Your username of eteams
 -p Your password of etaams
 '''
@@ -35,7 +36,7 @@ banner='''
 eChecker
 Make auto checkin and checkout for eteams
 Author: cahi1l1yn
-Version:1.0
+Version:1.1
 ----------------------------------------------------
 '''
 
@@ -48,7 +49,7 @@ sys.setrecursionlimit = (9999999999)
 
 def get_time():
     global h,m,d
-    h = time.strftime('%H',time.localtime()).strip('0')
+    h = time.strftime('%H',time.localtime()).lstrip('0')
     m = time.strftime('%M',time.localtime())
     d = time.strftime('%a',time.localtime())
 
@@ -144,9 +145,11 @@ def check_time():
             keep_session()
             time.sleep(60)
         elif h== ih and m == im and d not in ('Sat','Sun'):
+            time.sleep(random.randint(0,300))
             check_in()
             time.sleep(60)
         elif h == oh and m == om and d not in ('Sat','Sun'):
+            time.sleep(random.randint(0,300))
             check_out()
             time.sleep(60)
         else:
@@ -178,7 +181,7 @@ def main(argv):
         elif opt == '-p':
             passwd = arg
     try:
-        print 'Running...\nCheckin at '+intime+'\nCheckout at '+outime
+        print 'Running...\nCheckin at '+intime+' +\nCheckout at '+outime
     except NameError:
         print '[ERROR]Please check your time'
         sys.exit(2)
