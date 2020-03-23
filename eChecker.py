@@ -19,6 +19,7 @@ import json
 import re
 import cookielib
 
+
 help='''
 Usage: eChecker.py -i checkin_time(%hh:%mm) -o checkout_time(%hh:%mm) -u username -p password
 
@@ -43,7 +44,7 @@ curl = 'https://www.eteams.cn/attendapp/timecard/check.json'
 lurl = 'https://passport.eteams.cn/login'
 agent = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.9 Safari/537.36'
 usage = "Usage: eChecker.py -i checkin_time(%hh:%mm) -o checkout_time(%hh:%mm) -u username -p password\n"
-
+sys.setrecursionlimit = (9999999999)
 
 def get_time():
     global h,m,d
@@ -74,7 +75,8 @@ def get_cookie(user,passwd):
         print '[ERROR]None cookie recived, wrong username or password'
         sys.exit(2)
 
-def keep_seesion():
+def keep_session():
+    print '[INFO]Time for keep session'
     req = urllib2.Request(kurl)
     req.add_header('Cookie',cookie)
     req.add_header('X-Requested-With','XMLHttpRequest')
@@ -83,14 +85,16 @@ def keep_seesion():
         msg = res.find('actionMsg')
         if msg > -1:
             print '[WARNING]'+res
+            print 'Now re-login'
+            get_cookie(user,passwd)
         else:
-            print '[INFO]Seesion keep living'
+            print '[INFO]Seesion keep alive'
     except:
         time.sleep(10)
         keep_live()
 
 def check_in():
-    print 'Time for checkin'
+    print '[INFO]Time for checkin'
     req = urllib2.Request(curl)
     req.add_header("Cookie",cookie)
     req.add_header("Content-Type","application/json")
@@ -100,15 +104,15 @@ def check_in():
         smsg = res.find('签到成功')
         fmsg = res.find('签到失败')
         if smsg > -1:
-            print '[INFO]'+time.strftime('%Y-%m-%d_%H:%M',time.localtime())+' Checkout succeed'
+            print '[INFO]'+time.strftime('%Y-%m-%d_%H:%M',time.localtime())+' Checkin succeed'
         elif fmsg > -1:
-            print '[WARNING]'+time.strftime('%Y-%m-%d_%H:%M',time.localtime())+' Checkout fail:'+res
+            print '[WARNING]'+time.strftime('%Y-%m-%d_%H:%M',time.localtime())+' Checkin fail:'+res
     except:
         time.sleep(10)
         check_in()
 
 def check_out():
-    print 'Time for checkout'
+    print '[INFO]Time for checkout'
     req = urllib2.Request(curl)
     req.add_header("Cookie",cookie)
     req.add_header("Content-Type","application/json")
@@ -128,24 +132,23 @@ def check_out():
 def check_time():
     while True:
         get_time()
-        if d not in ('Sat','Sun'):
-            try:
-                ih = intime.split(':')[0]
-                im = intime.split(':')[1]
-                oh = outime.split(':')[0]
-                om = outime.split(':')[1]
-            except Exception as e:
-                print '[ERROR]Wrong format of time'
-                sys.exit(2)
-            if h == 0 and m == 30:
-                keep_seesion()
-                time.sleep(60)
-            elif h == ih and m == im:
-                check_in()
-                time.sleep(60)
-            elif h == oh and m == om:
-                check_out()
-                time.sleep(60)
+        try:
+            ih = intime.split(':')[0]
+            im = intime.split(':')[1]
+            oh = outime.split(':')[0]
+            om = outime.split(':')[1]
+        except Exception as e:
+            print '[ERROR]Wrong format of time'
+            sys.exit(2)
+        if h == 4 and m == 30:
+            keep_session()
+            time.sleep(60)
+        elif h == ih and m == im and d not in ('Sat','Sun'):
+            check_in()
+            time.sleep(60)
+        elif h == oh and m == om and d not in ('Sat','Sun'):
+            check_out()
+            time.sleep(60)
         else:
             time.sleep(60)
             check_time()
