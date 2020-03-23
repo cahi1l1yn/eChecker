@@ -48,7 +48,7 @@ sys.setrecursionlimit = (9999999999)
 
 def get_time():
     global h,m,d
-    h = time.strftime('%H',time.localtime())
+    h = time.strftime('%H',time.localtime()).strip('0')
     m = time.strftime('%M',time.localtime())
     d = time.strftime('%a',time.localtime())
 
@@ -140,13 +140,13 @@ def check_time():
         except Exception as e:
             print '[ERROR]Wrong format of time'
             sys.exit(2)
-        if h.strip('0') == 4 and m == 30:
+        if h == '4' and m == '30':
             keep_session()
             time.sleep(60)
-        elif h.strip('0') == ih and m == im and d not in ('Sat','Sun'):
+        elif h== ih and m == im and d not in ('Sat','Sun'):
             check_in()
             time.sleep(60)
-        elif h.strip('0') == oh and m == om and d not in ('Sat','Sun'):
+        elif h == oh and m == om and d not in ('Sat','Sun'):
             check_out()
             time.sleep(60)
         else:
