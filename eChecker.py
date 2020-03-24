@@ -23,8 +23,8 @@ import random
 
 help='''
 -h Print this help
--i Set checkin time(%h:%m),random float 0 to 5 min
--o Set checkout time(%h:%m),random float 0 to 5 min
+-i Set checkin time(%h:%m),random float 0 to 10 min
+-o Set checkout time(%h:%m),random float 0 to 10 min
 -u Your username of eteams
 -p Your password of etaams
 '''
