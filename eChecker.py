@@ -6,7 +6,7 @@
 eChecker
 Make auto checkin and checkout for eteams
 Author: cahi1l1yn
-Version:1.2
+Version:1.3
 --------------------------------------------------
 '''
 
@@ -34,7 +34,7 @@ banner='''
 eChecker
 Make auto checkin and checkout for eteams
 Author: cahi1l1yn
-Version:1.2
+Version:1.3
 ----------------------------------------------------
 '''
 
@@ -45,11 +45,6 @@ agent = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Ge
 usage = "Usage: eChecker.py -i checkin_time(%h:%m) -o checkout_time(%h:%m) -u username -p password\n"
 sys.setrecursionlimit = (9999999999)
 
-def get_time():
-    global h,m,d
-    h = time.strftime('%H',time.localtime()).lstrip('0')
-    m = time.strftime('%M',time.localtime())
-    d = time.strftime('%a',time.localtime())
 
 def get_cookie(user,passwd):
     global cookie
@@ -58,7 +53,7 @@ def get_cookie(user,passwd):
     html = pres.read()
     token = re.search(r'LT\S+cn',html).group()
     pcookie = re.search(r'JSESSIONID=\S+',str(pres.info().headers)).group()
-    data ='lt='+token+'&execution=e1.2&j_pcClient=&_eventId=submit&isApplyed=false&registerSourceUrl=&registerSource=&registerDataSource=&username='+user+'&password='+passwd
+    data ='lt='+token+'&execution=e1s1&j_pcClient=&_eventId=submit&isApplyed=false&registerSourceUrl=&registerSource=&registerDataSource=&username='+user+'&password='+passwd
     req = urllib2.Request(lurl)
     cj = cookielib.CookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
@@ -66,7 +61,9 @@ def get_cookie(user,passwd):
     try:
         res = opener.open(lurl,data=data,timeout=10)
     except urllib2.URLError:
-        print '[ERROR]Urlllib error, retry later'
+        print '[ERROR]Login fail, retry later'
+        time.sleep(60)
+        get_cookie(username,passwd)
     try:
         cookie = re.search(r'ETEAMSID=\w+',str(cj)).group()+';'+re.search(r'JSESSIONID=\w+',str(cj)).group()+';'+re.search(r'WEBID=\w+',str(cj)).group()
         print '[INFO]Login succeed, your cookie is:'+cookie
@@ -75,7 +72,7 @@ def get_cookie(user,passwd):
         sys.exit(2)
 
 def keep_session():
-    print '[INFO]Time for keep session'
+    print '[INFO]Checking session'
     req = urllib2.Request(kurl)
     req.add_header('Cookie',cookie)
     req.add_header('X-Requested-With','XMLHttpRequest')
@@ -84,10 +81,10 @@ def keep_session():
         msg = res.find('actionMsg')
         if msg > -1:
             print '[WARNING]'+res
-            print 'Now re-login'
+            print '[INFO]Now re-login'
             get_cookie(user,passwd)
         else:
-            print '[INFO]Seesion keep alive'
+            print '[INFO]Seesion alive'
     except:
         time.sleep(10)
         keep_live()
@@ -103,9 +100,9 @@ def check_in():
         smsg = res.find('签到成功')
         fmsg = res.find('签到失败')
         if smsg > -1:
-            print '[INFO]'+time.strftime('%Y-%m-%d_%H:%M',time.localtime())+' Checkin succeed'
+            print '[INFO]'+time.strftime('%c',time.localtime())+' Checkin succeed'
         elif fmsg > -1:
-            print '[WARNING]'+time.strftime('%Y-%m-%d_%H:%M',time.localtime())+' Checkin fail:'+res
+            print '[WARNING]'+time.strftime('%c',time.localtime())+' Checkin fail:'+res
     except:
         time.sleep(10)
         check_in()
@@ -121,40 +118,42 @@ def check_out():
         smsg = res.find('签退成功')
         fmsg = res.find('签退失败')
         if smsg > -1:
-            print '[INFO]'+time.strftime('%Y-%m-%d_%H:%M',time.localtime())+' Checkout succeed'
+            print '[INFO]'+time.strftime('%c',time.localtime())+' Checkout succeed'
         elif fmsg > -1:
-            print '[WARNING]'+time.strftime('%Y-%m-%d_%H:%M',time.localtime())+' Checkout fail:'+res
+            print '[WARNING]'+time.strftime('%c',time.localtime())+' Checkout fail:'+res
     except:
         time.sleep(10)
         check_out()
 
 def check_time():
     while True:
-        get_time()
-        try:
-            ih = intime.split(':')[0]
-            im = intime.split(':')[1]
-            oh = outime.split(':')[0]
-            om = outime.split(':')[1]
-        except Exception as e:
-            print '[ERROR]Wrong format of time'
-            sys.exit(2)
-        if h == '4' and m == '30':
+        ltime = time.strftime('%H:%M',time.localtime()).lstrip('0')
+        day = time.strftime('%a',time.localtime())
+        s = time.strftime('%S',time.localtime())
+        if ltime == '4:30':
             keep_session()
             time.sleep(60)
-        elif h== ih.sltrip('0') and m == im and d not in ('Sat','Sun'):
-            time.sleep(random.randint(0,300))
+        elif ltime == intime.lstrip('0') and day not in ('Sat','Sun'):
+            keep_session()
+            rnd = random.randint(0,600)
+            print '[INFO]Checkin after ' + str(int(rnd)/60) + ' Min ' + str(int(rnd)%60) + ' Sec'
+            time.sleep(int(rnd))
             check_in()
             time.sleep(60)
-        elif h == oh.sltrip('0') and m == om and d not in ('Sat','Sun'):
-            time.sleep(random.randint(0,300))
+        elif ltime == outime.lstrip('0') and day not in ('Sat','Sun'):
+            keep_session()
+            rnd = random.randint(0,600)
+            print '[INFO]Checkout after ' + str(int(rnd)/60) + ' Min ' + str(int(rnd)%60) + ' Sec'
+            time.sleep(int(rnd))
             check_out()
             time.sleep(60)
         else:
-            
-            time.sleep(60)
-            check_time()
-        
+            if s == '00' :
+                time.sleep(60)
+            else:
+                time.sleep(1)
+        check_time()
+
 def main(argv):
     print banner
     print usage
@@ -180,9 +179,11 @@ def main(argv):
         elif opt == '-p':
             passwd = arg
     try:
-        print 'Running...\nCheckin at '+intime+' +(0-5 min)\nCheckout at '+outime+' +(0-5 min)'
-    except NameError:
-        print '[ERROR]Please check your time'
+        time.strptime(intime,'%H:%M')
+        time.strptime(outime,'%H:%M')
+        print 'Running...\nCheckin at '+intime+' +(0-10 min)\nCheckout at '+outime+' +(0-10 min)'
+    except BaseException:
+        print '[ERROR]Error format of time'
         sys.exit(2)
     try:
         get_cookie(user,passwd)

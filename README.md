@@ -2,7 +2,7 @@
 eChecker  
 Make auto checkin and checkout for eteams  
 Author: cahi1l1yn  
-Version:1.2  
+Version:1.3  
 ----------------------------------------------------  
 
 Usage: eChecker.py -i checkin_time(%h:%m) -o checkout_time(%h:%m) -u username -p password  
