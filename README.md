@@ -2,14 +2,14 @@
 eChecker  
 Make auto checkin and checkout for eteams  
 Author: cahi1l1yn  
-Version:1.1 
+Version:1.2  
 ----------------------------------------------------  
 
-Usage: eChecker.py -i checkin_time(%hh:%mm) -o checkout_time(%hh:%mm) -u username -p password  
+Usage: eChecker.py -i checkin_time(%h:%m) -o checkout_time(%h:%m) -u username -p password  
 
 -h Print this help  
--i Set checkin time(%hh:%mm),random float 0 to 5 min  
--o Set checkout time(%hh:%mm),random float 0 to 5 min   
+-i Set checkin time(%h:%m),random float 0 to 5 min  
+-o Set checkout time(%h:%m),random float 0 to 5 min   
 -u Your username of eteams  
 -p Your password of eteams   
 

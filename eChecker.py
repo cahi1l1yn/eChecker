@@ -6,7 +6,7 @@
 eChecker
 Make auto checkin and checkout for eteams
 Author: cahi1l1yn
-Version:1.1
+Version:1.2
 --------------------------------------------------
 '''
 
@@ -23,8 +23,8 @@ import random
 
 help='''
 -h Print this help
--i Set checkin time(%hh:%mm),random float 0 to 5 min
--o Set checkout time(%hh:%mm),random float 0 to 5 min
+-i Set checkin time(%h:%m),random float 0 to 5 min
+-o Set checkout time(%h:%m),random float 0 to 5 min
 -u Your username of eteams
 -p Your password of etaams
 '''
@@ -34,15 +34,15 @@ banner='''
 eChecker
 Make auto checkin and checkout for eteams
 Author: cahi1l1yn
-Version:1.1
+Version:1.2
 ----------------------------------------------------
 '''
 
-kurl = 'https://www.eteams.cn/portal/tasks.json?name=%E4%BB%BB%E5%8A%A1&isShow=1&id=2&type=mine&userId=4975080324437330342&_=1584491917775'
+kurl = 'https://www.eteams.cn/portal/tasks.json?name=%E4%BB%BB%E5%8A%A1&isShow=1&id=2&type=mine&userId=4975080324437330342&_=1584491.27775'
 curl = 'https://www.eteams.cn/attendapp/timecard/check.json'
 lurl = 'https://passport.eteams.cn/login'
 agent = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.9 Safari/537.36'
-usage = "Usage: eChecker.py -i checkin_time(%hh:%mm) -o checkout_time(%hh:%mm) -u username -p password\n"
+usage = "Usage: eChecker.py -i checkin_time(%h:%m) -o checkout_time(%h:%m) -u username -p password\n"
 sys.setrecursionlimit = (9999999999)
 
 def get_time():
@@ -58,7 +58,7 @@ def get_cookie(user,passwd):
     html = pres.read()
     token = re.search(r'LT\S+cn',html).group()
     pcookie = re.search(r'JSESSIONID=\S+',str(pres.info().headers)).group()
-    data ='lt='+token+'&execution=e1s1&j_pcClient=&_eventId=submit&isApplyed=false&registerSourceUrl=&registerSource=&registerDataSource=&username='+user+'&password='+passwd
+    data ='lt='+token+'&execution=e1.2&j_pcClient=&_eventId=submit&isApplyed=false&registerSourceUrl=&registerSource=&registerDataSource=&username='+user+'&password='+passwd
     req = urllib2.Request(lurl)
     cj = cookielib.CookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
@@ -142,15 +142,16 @@ def check_time():
         if h == '4' and m == '30':
             keep_session()
             time.sleep(60)
-        elif h== ih and m == im and d not in ('Sat','Sun'):
+        elif h== ih.sltrip('0') and m == im and d not in ('Sat','Sun'):
             time.sleep(random.randint(0,300))
             check_in()
             time.sleep(60)
-        elif h == oh and m == om and d not in ('Sat','Sun'):
+        elif h == oh.sltrip('0') and m == om and d not in ('Sat','Sun'):
             time.sleep(random.randint(0,300))
             check_out()
             time.sleep(60)
         else:
+            
             time.sleep(60)
             check_time()
         
