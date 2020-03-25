@@ -6,7 +6,7 @@
 eChecker
 Make auto checkin and checkout for eteams
 Author: cahi1l1yn
-Version:1.3
+Version:1.4
 --------------------------------------------------
 '''
 
@@ -27,6 +27,8 @@ help='''
 -o Set checkout time(%h:%m),random float 0 to 10 min
 -u Your username of eteams
 -p Your password of etaams
+-a Set address for checkin and checkout,can be IP or location
+
 '''
 
 banner='''
@@ -34,16 +36,16 @@ banner='''
 eChecker
 Make auto checkin and checkout for eteams
 Author: cahi1l1yn
-Version:1.3
+Version:1.4
 ----------------------------------------------------
 '''
 
 kurl = 'https://www.eteams.cn/portal/tasks.json?name=%E4%BB%BB%E5%8A%A1&isShow=1&id=2&type=mine&userId=4975080324437330342&_=1584491.27775'
 curl = 'https://www.eteams.cn/attendapp/timecard/check.json'
 lurl = 'https://passport.eteams.cn/login'
-agent = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.9 Safari/537.36'
-usage = "Usage: eChecker.py -i checkin_time(%h:%m) -o checkout_time(%h:%m) -u username -p password\n"
-sys.setrecursionlimit = (9999999999)
+ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.9 Safari/537.36'
+usage = "Usage: eChecker.py -i checkin_time(%h:%m) -o checkout_time(%h:%m) -u username -p password -a(optional) IP/location\n"
+sys.setrecursionlimit(999999)
 
 
 def get_cookie(user,passwd):
@@ -94,7 +96,11 @@ def check_in():
     req = urllib2.Request(curl)
     req.add_header("Cookie",cookie)
     req.add_header("Content-Type","application/json")
-    data = json.dumps({"type":"CHECKIN"})
+    if stat == '0':
+        data = json.dumps({"type":"CHECKIN","checkAddress":addr})
+    elif stat =='1':
+        req.add_header('User-Agent',ua)
+        data = json.dumps({"type":"CHECKIN"})    
     try:
         res = urllib2.urlopen(req,data=data,timeout=5).read()
         smsg = res.find('签到成功')
@@ -112,7 +118,11 @@ def check_out():
     req = urllib2.Request(curl)
     req.add_header("Cookie",cookie)
     req.add_header("Content-Type","application/json")
-    data = json.dumps({"type":"CHECKOUT"})
+    if stat == '0':
+        data = json.dumps({"type":"CHECKOUT","checkAddress":addr})
+    elif stat =='1':
+        req.add_header('User-Agent',ua)
+        data = json.dumps({"type":"CHECKOUT"})
     try:
         res = urllib2.urlopen(req,data,timeout=5).read()
         smsg = res.find('签退成功')
@@ -158,7 +168,7 @@ def main(argv):
     print banner
     print usage
     try:
-        opts, args = getopt.getopt(argv,"-h-i:-o:-u:-p:")
+        opts, args = getopt.getopt(argv,"-h-i:-o:-u:-p:-a:")
     except  getopt.GetoptError:
         print '[ERROR]Please check your argument and usage'
         sys.exit(2)
@@ -167,6 +177,8 @@ def main(argv):
         global outime
         global user
         global passwd
+        global addr
+        global stat
         if opt == '-h':
             print help
             sys.exit(0)
@@ -178,6 +190,8 @@ def main(argv):
             user = arg
         elif opt == '-p':
             passwd = arg
+        elif opt == '-a':
+            addr = arg
     try:
         time.strptime(intime,'%H:%M')
         time.strptime(outime,'%H:%M')
@@ -185,6 +199,12 @@ def main(argv):
     except BaseException:
         print '[ERROR]Error format of time'
         sys.exit(2)
+    try:
+        stat = '0'
+        print '[INFO]Check address is:'+addr
+    except UnboundLocalError: 
+        stat = '1'
+        pass
     try:
         get_cookie(user,passwd)
     except NameError:
