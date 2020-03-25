@@ -11,7 +11,7 @@ Usage: eChecker.py -i checkin_time(%h:%m) -o checkout_time(%h:%m) -u username -p
 -i Set checkin time(%h:%m),random float 0 to 10 min  
 -o Set checkout time(%h:%m),random float 0 to 10 min   
 -u Your username of eteams  
--p Your password of eteams
+-p Your password of eteams  
 -a Set address for checkin and checkout,can be IP or location     
 
 #本程序仅供学习研究用途，请勿滥用。 
