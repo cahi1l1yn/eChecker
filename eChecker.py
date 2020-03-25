@@ -202,7 +202,7 @@ def main(argv):
     try:
         stat = '0'
         print '[INFO]Check address is:'+addr
-    except UnboundLocalError: 
+    except BaseException: 
         stat = '1'
         pass
     try:
