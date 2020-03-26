@@ -6,7 +6,7 @@
 eChecker
 Make auto checkin and checkout for eteams
 Author: cahi1l1yn
-Version:1.4
+Version:1.5
 --------------------------------------------------
 '''
 
@@ -36,13 +36,14 @@ banner='''
 eChecker
 Make auto checkin and checkout for eteams
 Author: cahi1l1yn
-Version:1.4
+Version:1.5
 ----------------------------------------------------
 '''
 
 kurl = 'https://www.eteams.cn/portal/tasks.json?name=%E4%BB%BB%E5%8A%A1&isShow=1&id=2&type=mine&userId=4975080324437330342&_=1584491.27775'
 curl = 'https://www.eteams.cn/attendapp/timecard/check.json'
 lurl = 'https://passport.eteams.cn/login'
+murl = 'https://apis.map.qq.com/jsapi?'
 ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.9 Safari/537.36'
 usage = "Usage: eChecker.py -i checkin_time(%h:%m) -o checkout_time(%h:%m) -u username -p password -a(optional) IP/location\n"
 sys.setrecursionlimit(999999)
@@ -97,10 +98,12 @@ def check_in():
     req.add_header("Cookie",cookie)
     req.add_header("Content-Type","application/json")
     if stat == '0':
+        data = json.dumps({"type":"CHECKIN","checkAddress":addr,"longitude":longi,'latitude':lati})
+    elif stat == '1':
         data = json.dumps({"type":"CHECKIN","checkAddress":addr})
-    elif stat =='1':
+    elif stat =='2':
         req.add_header('User-Agent',ua)
-        data = json.dumps({"type":"CHECKIN"})    
+        data = json.dumps({"type":"CHECKIN"})
     try:
         res = urllib2.urlopen(req,data=data,timeout=5).read()
         smsg = res.find('签到成功')
@@ -119,8 +122,10 @@ def check_out():
     req.add_header("Cookie",cookie)
     req.add_header("Content-Type","application/json")
     if stat == '0':
+        data = json.dumps({"type":"CHECKOUT","checkAddress":addr,"longitude":longi,'latitude':lati})
+    elif stat == '1':
         data = json.dumps({"type":"CHECKOUT","checkAddress":addr})
-    elif stat =='1':
+    elif stat =='2':
         req.add_header('User-Agent',ua)
         data = json.dumps({"type":"CHECKOUT"})
     try:
@@ -164,6 +169,18 @@ def check_time():
                 time.sleep(1)
         check_time()
 
+def get_position(addr):
+    global longi
+    global lati
+    get = 'qt=geoc&addr='+addr+'&key=UGMBZ-CINWR-DDRW5-W52AK-D3ENK-ZEBRC&output=jsonp&pf=jsapi&ref=jsapi&cb=qq.maps._svcb4.geocoder0'
+    req = urllib2.Request(murl+get)
+    req.add_header('Referer','https://jingweidu.51240.com/web_system/51240_com_www/system/file/jingweidu/api/?v=20031904')
+    req.add_header("Cookie",'pgv_pvi=5325285376; mpuv=a66cc503-6438-49db-5e88-70528667426e')
+    res = urllib2.urlopen(req)
+    html = res.read()
+    longi = re.search(r'pointx\W+\d+.\d+',html).group().lstrip('pointx":"')
+    lati = re.search(r'pointy\W+\d+.\d+',html).group().lstrip('pointy":"')
+
 def main(argv):
     print banner
     print usage
@@ -202,8 +219,15 @@ def main(argv):
     try:
         stat = '0'
         print '[INFO]Check address is:'+addr
+        try:
+            get_position(addr)
+            print '[INFO]Position is:['+longi+','+lati+']'
+        except BaseException:
+            stat = '1'
+            print '[INFO]Position is:[Can not get position]'
+            pass    
     except BaseException: 
-        stat = '1'
+        stat = '2'
         pass
     try:
         get_cookie(user,passwd)
