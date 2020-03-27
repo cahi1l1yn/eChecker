@@ -46,7 +46,7 @@ lurl = 'https://passport.eteams.cn/login'
 murl = 'https://apis.map.qq.com/jsapi?'
 ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.9 Safari/537.36'
 usage = "Usage: eChecker.py -i checkin_time(%h:%m) -o checkout_time(%h:%m) -u username -p password -a(optional) IP/location\n"
-sys.setrecursionlimit(999999)
+sys.setrecursionlimit(999999999)
 
 
 def get_cookie(user,passwd):
