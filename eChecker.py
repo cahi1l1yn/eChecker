@@ -174,9 +174,8 @@ def check_time():
 def get_position(addr):
     global longi
     global lati
-    req = urllib2.Request('http://api.map.baidu.com/geocoding/v3/?address='+addr+'&output=json&ak='+api_key+'&callback=showLocation')
-    res = urllib2.urlopen(req)
-    html =res.read()
+    url = 'http://api.map.baidu.com/geocoding/v3/?address='+addr+'&output=json&ak='+api_key+'&callback=showLocation'
+    html = urllib2.urlopen(url.encode('utf-8')).read()
     longi = re.search(r'lng":\d+.\d+',html).group().lstrip('lng":')
     lati = re.search(r'lat":\d+.\d+',html).group().lstrip('lat":')
 
