@@ -6,7 +6,7 @@
 eChecker
 Make auto checkin and checkout for eteams
 Author: cahi1l1yn
-Version:1.6
+Version:1.7
 --------------------------------------------------
 '''
 
@@ -19,7 +19,7 @@ import json
 import re
 import cookielib
 import random
-import geocoder
+
 
 help='''
 -h Print this help
@@ -36,17 +36,20 @@ banner='''
 eChecker
 Make auto checkin and checkout for eteams
 Author: cahi1l1yn
-Version:1.6
+Version:1.7
 ----------------------------------------------------
 '''
 
+api_key = ''  #set your api_key of baidu map here
 kurl = 'https://www.eteams.cn/portal/tasks.json?name=%E4%BB%BB%E5%8A%A1&isShow=1&id=2&type=mine&userId=4975080324437330342&_=1584491.27775'
 curl = 'https://www.eteams.cn/attendapp/timecard/check.json'
 lurl = 'https://passport.eteams.cn/login'
 ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.9 Safari/537.36'
 usage = "Usage: eChecker.py -i checkin_time(%h:%m) -o checkout_time(%h:%m) -u username -p password -a(optional) IP/location\n"
-sys.setrecursionlimit(999999999)
 
+reload(sys)
+sys.setrecursionlimit(999999999)
+sys.setdefaultencoding('utf-8') 
 
 def get_cookie(user,passwd):
     global cookie
@@ -97,7 +100,7 @@ def check_in():
     req.add_header("Cookie",cookie)
     req.add_header("Content-Type","application/json")
     if stat == '0':
-        data = json.dumps({"type":"CHECKIN","checkAddress":addr,"longitude":longi,'latitude':lati})
+        data = json.dumps({"type":"CHECKIN","checkAddress":addr,"longitude":longi,"latitude":lati})
     elif stat == '1':
         data = json.dumps({"type":"CHECKIN","checkAddress":addr})
     elif stat =='2':
@@ -121,7 +124,7 @@ def check_out():
     req.add_header("Cookie",cookie)
     req.add_header("Content-Type","application/json")
     if stat == '0':
-        data = json.dumps({"type":"CHECKOUT","checkAddress":addr,"longitude":longi,'latitude':lati})
+        data = json.dumps({"type":"CHECKOUT","checkAddress":addr,"longitude":longi,"latitude":lati})
     elif stat == '1':
         data = json.dumps({"type":"CHECKOUT","checkAddress":addr})
     elif stat =='2':
@@ -171,9 +174,11 @@ def check_time():
 def get_position(addr):
     global longi
     global lati
-    locate = geocoder.arcgis(addr)
-    longi = str(locate.latlng[1])
-    lati = str(locate.latlng[0])
+    req = urllib2.Request('http://api.map.baidu.com/geocoding/v3/?address='+addr+'&output=json&ak='+api_key+'&callback=showLocation')
+    res = urllib2.urlopen(req)
+    html =res.read()
+    longi = re.search(r'lng":\d+.\d+',html).group().lstrip('lng":')
+    lati = re.search(r'lat":\d+.\d+',html).group().lstrip('lat":')
 
 def main(argv):
     print banner

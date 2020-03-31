@@ -2,7 +2,7 @@
 eChecker  
 Make auto checkin and checkout for eteams  
 Author: cahi1l1yn  
-Version:1.6   
+Version:1.7   
 ----------------------------------------------------  
 
 Usage: eChecker.py -i checkin_time(%h:%m) -o checkout_time(%h:%m) -u username -p password  -a(optional) IP/location    
@@ -14,7 +14,8 @@ Usage: eChecker.py -i checkin_time(%h:%m) -o checkout_time(%h:%m) -u username -p
 -p Your password of eteams  
 -a Set address for checkin and checkout,can be IP or location
 
-*Need to install requirements first: pip install -r requirements.txt   
+Config：
+Set your api_key of baidu map  
 
 
 #本程序仅供学习研究用途，请勿滥用。 
