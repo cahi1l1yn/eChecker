@@ -13,6 +13,7 @@ Version:1.7
 import getopt
 import sys
 import urllib2
+import urllib
 import time
 import logging
 import json
@@ -174,8 +175,9 @@ def check_time():
 def get_position(addr):
     global longi
     global lati
+    addr = urllib.quote(addr)
     url = 'http://api.map.baidu.com/geocoding/v3/?address='+addr+'&output=json&ak='+api_key+'&callback=showLocation'
-    html = urllib2.urlopen(url.encode('utf-8')).read()
+    html = urllib2.urlopen(url).read()
     longi = re.search(r'lng":\d+.\d+',html).group().lstrip('lng":')
     lati = re.search(r'lat":\d+.\d+',html).group().lstrip('lat":')
 
